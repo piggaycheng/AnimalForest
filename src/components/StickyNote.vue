@@ -1,8 +1,9 @@
 <template>
     <div class="col-md-3">
         <div class="card">
-            <div class="card-body" @mouseover.stop="hover($event, true)" @mouseout.stop="hover($event, false)">
-                This is some text within a card body.
+            <h5 class="card-title">{{ noteData.title }}</h5>
+            <div class="card-body" @mouseover.stop="hover($event, true)" @mouseout.stop="hover($event, false)" @click="clickCard">
+                {{ noteData.content }}
             </div>
         </div>
     </div>
@@ -11,6 +12,7 @@
 <script>
 export default {
     name: 'StickyNote',
+    props: ['noteData'],
     data: function () {
         return {
             isHovering: false,
@@ -23,6 +25,9 @@ export default {
             } else {
                 e.target.parentElement.className = 'card';
             }
+        }, 
+        clickCard() {
+            this.$emit('click-card', this.noteData);
         }
     },
 }
@@ -32,5 +37,10 @@ export default {
 .card {
     margin: 0.5rem;
     height: 15rem;
+    padding-top: 1rem;
+}
+
+.card-body {
+    text-align: start;
 }
 </style>
