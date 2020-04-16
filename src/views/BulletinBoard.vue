@@ -23,6 +23,7 @@
 import StickyNote from '@/components/StickyNote.vue'
 import Modal from '@/components/Modal.vue'
 import $ from 'jquery';
+// import db from '@/js/db.js'
 
 export default {
 	name: 'BulletinBoard',
@@ -41,9 +42,12 @@ export default {
 				{id: 2, title: 'testTitle2', content: 'testContent bra bra bra', deadTime: ''},
 				{id: 3, title: 'testTitle3', content: 'testContent bra bra bra', deadTime: ''},
 				{id: 4, title: 'testTitle4', content: 'testContent bra bra bra', deadTime: ''}
-			]
+			],
         }
-    },
+	},
+	created() {
+		
+	},
 	methods: {
 		clickCard(noteData) {
 			this.isForm = false;
