@@ -14,7 +14,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" v-if="modalType == 'form'">Save changes</button>
+                    <button type="button" class="btn btn-primary" v-if="modalType == 'form'" @click="clickSave">Save changes</button>
                     <button type="button" class="btn btn-primary" v-if="modalType == 'preview'" @click="clickEdit">Edit</button>
                 </div>
             </div>
@@ -34,6 +34,9 @@ export default {
     methods: {
         clickEdit() {
             this.$emit('click-edit');
+        },
+        clickSave() {
+            this.$emit('click-save');
         },
     },
 }
