@@ -1,16 +1,10 @@
 <template>
 	<div class="bulletin-board container-fluid">
 		<div class="row">
-			<!-- <StickyNote
-				v-for="(item, index) in testData"
-				:key="index"
-				@click-card="clickCard"
-				:noteData="item"
-			></StickyNote> -->
 			<StickyNote
-				v-for="(item, index) in dataList"
-				:key="index"
-				@click-card="clickCard"
+				v-for="(item) in dataList"
+				:key="item.id"
+				@click-card="clickCard(item.id, ...arguments)"
 				:noteData="item"
 			></StickyNote>
 		</div>
@@ -51,7 +45,7 @@
 import StickyNote from "@/components/StickyNote.vue";
 import Modal from "@/components/Modal.vue";
 import $ from "jquery";
-import db from "@/js/db.js";
+import { db, dbTimeStamp} from "@/js/db.js";
 
 export default {
 	name: "BulletinBoard",
@@ -61,36 +55,10 @@ export default {
 	},
 	data: function() {
 		return {
-			modalTitle: "",
 			isForm: false,
 			modalType: "",
+			modalTitle: "",
 			modalContent: "",
-			testData: [
-				{
-					id: 1,
-					title: "testTitle1",
-					content: "testContent bra bra bra",
-					deadTime: ""
-				},
-				{
-					id: 2,
-					title: "testTitle2",
-					content: "testContent bra bra bra",
-					deadTime: ""
-				},
-				{
-					id: 3,
-					title: "testTitle3",
-					content: "testContent bra bra bra",
-					deadTime: ""
-				},
-				{
-					id: 4,
-					title: "testTitle4",
-					content: "testContent bra bra bra",
-					deadTime: ""
-				}
-			],
 
 			// form data
 			stickyFormTitle: "",
@@ -98,47 +66,74 @@ export default {
 
 			// data
 			dataList: [],
+
+			// edit data id
+			editDataId: ""
 		};
 	},
 	created() {
 		let ref = db.collection("stickyNote");
 		ref.onSnapshot(querySnapshot => {
+			this.dataList = [];
 			querySnapshot.forEach(doc => {
 				let data = {
-					'title': doc.data().title,
-					'content': doc.data().content,
+					id: doc.id,
+					title: doc.data().title,
+					content: doc.data().content
 				};
 				this.dataList.push(data);
 			});
 		});
 	},
 	methods: {
-		clickCard(noteData) {
+		clickCard(docId, noteData) {
 			this.isForm = false;
 			this.modalTitle = noteData.title;
 			this.modalType = "preview";
 			this.modalContent = noteData.content;
 			$(this.$refs.modal.$el).modal("show");
+
+			this.editDataId = docId;
 		},
 		clickAddBtn() {
 			this.isForm = true;
 			this.modalType = "form";
 			this.modalTitle = "新增";
+
+			this.editDataId = "";
 		},
 		clickEditBtn() {
 			this.isForm = true;
 			this.modalType = "form";
-			console.log("edit");
+			this.stickyFormTitle = this.modalTitle;
+			this.stickyFormContent = this.modalContent;
+			this.modalTitle = "編輯";
 		},
 		clickSaveBtn() {
-			let ref = db.collection("stickyNote");
 			let post = {
 				title: this.stickyFormTitle,
-				content: this.stickyFormContent
+				content: this.stickyFormContent,
 			};
-			ref.add(post).then(() => {
-				console.log("add data successful");
-			});
+
+			// add
+			if (this.editDataId === "") {
+				let ref = db.collection("stickyNote");
+				post.created = dbTimeStamp.now();
+				post.updated = dbTimeStamp.now();
+				
+				ref.add(post).then(() => {
+					console.log("add success");
+					$(this.$refs.modal.$el).modal("hide");
+				});
+			} else {		// update
+				let ref = db.collection("stickyNote").doc(this.editDataId);
+				post.updated = dbTimeStamp.now();
+
+				ref.update(post).then(() => {
+					console.log("update success");
+					$(this.$refs.modal.$el).modal("hide");
+				});
+			}
 		}
 	}
 };
