@@ -22,6 +22,7 @@
 			ref="modal"
 			@click-edit="clickEditBtn"
 			@click-save="clickSaveBtn"
+			@click-delete="clickDelBtn"
 		>
 			<form slot="modalBody" v-if="isForm">
 				<label for="title">標題</label>
@@ -45,7 +46,7 @@
 import StickyNote from "@/components/StickyNote.vue";
 import Modal from "@/components/Modal.vue";
 import $ from "jquery";
-import { db, dbTimeStamp} from "@/js/db.js";
+import { db, dbTimeStamp } from "@/js/db.js";
 
 export default {
 	name: "BulletinBoard",
@@ -67,8 +68,8 @@ export default {
 			// data
 			dataList: [],
 
-			// edit data id
-			editDataId: ""
+			// click card data id
+			clickDataId: ""
 		};
 	},
 	created() {
@@ -93,14 +94,14 @@ export default {
 			this.modalContent = noteData.content;
 			$(this.$refs.modal.$el).modal("show");
 
-			this.editDataId = docId;
+			this.clickDataId = docId;
 		},
 		clickAddBtn() {
 			this.isForm = true;
 			this.modalType = "form";
 			this.modalTitle = "新增";
 
-			this.editDataId = "";
+			this.clickDataId = "";
 		},
 		clickEditBtn() {
 			this.isForm = true;
@@ -112,21 +113,22 @@ export default {
 		clickSaveBtn() {
 			let post = {
 				title: this.stickyFormTitle,
-				content: this.stickyFormContent,
+				content: this.stickyFormContent
 			};
 
 			// add
-			if (this.editDataId === "") {
+			if (this.clickDataId === "") {
 				let ref = db.collection("stickyNote");
 				post.created = dbTimeStamp.now();
 				post.updated = dbTimeStamp.now();
-				
+
 				ref.add(post).then(() => {
 					console.log("add success");
 					$(this.$refs.modal.$el).modal("hide");
 				});
-			} else {		// update
-				let ref = db.collection("stickyNote").doc(this.editDataId);
+			} else {
+				// update
+				let ref = db.collection("stickyNote").doc(this.clickDataId);
 				post.updated = dbTimeStamp.now();
 
 				ref.update(post).then(() => {
@@ -134,6 +136,13 @@ export default {
 					$(this.$refs.modal.$el).modal("hide");
 				});
 			}
+		},
+		clickDelBtn() {
+			let ref = db.collection("stickyNote").doc(this.clickDataId);
+			ref.delete().then(() => {
+				console.log("delete success");
+				$(this.$refs.modal.$el).modal("hide");
+			});
 		}
 	}
 };

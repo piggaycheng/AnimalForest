@@ -13,6 +13,7 @@
                     <slot name="modalBody"></slot>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" v-if="modalType == 'preview'" @click="clickDelete">Delete</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" v-if="modalType == 'form'" @click="clickSave">Save changes</button>
                     <button type="button" class="btn btn-primary" v-if="modalType == 'preview'" @click="clickEdit">Edit</button>
@@ -38,6 +39,9 @@ export default {
         clickSave() {
             this.$emit('click-save');
         },
+        clickDelete() {
+            this.$emit('click-delete');
+        }
     },
 }
 </script>
